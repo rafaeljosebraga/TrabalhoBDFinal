@@ -8,7 +8,7 @@ app.secret_key = 'your_secret_key'
 
 # Credenciais do banco Oracle
 username = "jkss30742"
-password = "jkss2"
+password = "[REDACTED]"
 dsn = "200.131.242.43:1521/IFNMGPDB"
 
 def get_db_connection():
