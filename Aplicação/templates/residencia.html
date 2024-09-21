@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Residências</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2>Gerenciar Residências</h2>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="alert alert-info mt-3">
+            {{ messages[0] }}
+        </div>
+        {% endif %}
+        {% endwith %}
+        <button class="btn btn-primary mt-4" data-bs-toggle="modal" data-bs-target="#addResidenciaModal">Adicionar Nova
+            Residência</button>
+        <a href="{{ url_for('conteiner') }}" class="btn btn-secondary mt-4">Voltar</a>
+
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>Número de Série</th>
+                    <th>Nome</th>
+                    <th>Sigla</th>
+                    <th>Tamanho</th>
+                    <th>Quantidade de Cama</th>
+                    <th>Quantidade de Banheiro</th>
+                    <th>Nome da Colônia</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for residencia in residencias %}
+                <tr>
+                    <td>{{ residencia[0] }}</td>
+                    <td>{{ residencia[1] }}</td>
+                    <td>{{ residencia[2] }}</td>
+                    <td>{{ residencia[3] }}</td>
+                    <td>{{ residencia[4] }}</td>
+                    <td>{{ residencia[5] }}</td>
+                    <td>{{ residencia[6] }}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#editResidenciaModal" data-numeroserie="{{ residencia[0] }}"
+                            data-nome="{{ residencia[1] }}" data-sigla="{{ residencia[2] }}"
+                            data-tamanho="{{ residencia[3] }}" data-qtdcama="{{ residencia[4] }}"
+                            data-qtdbanheiro="{{ residencia[5] }}"
+                            data-nomecolonia="{{ residencia[6] }}">Editar</button>
+                        <form method="POST" action="{{ url_for('delete_residencia', numeroserie=residencia[0]) }}"
+                            style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Modal para Adicionar Nova Residência -->
+        <div class="modal fade" id="addResidenciaModal" tabindex="-1" role="dialog"
+            aria-labelledby="addResidenciaModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addResidenciaModalLabel">Adicionar Nova Residência</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" action="{{ url_for('add_residencia') }}">
+                            <div class="form-group">
+                                <label>Número de Série</label>
+                                <input type="number" name="numeroserie" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Nome</label>
+                                <input type="text" name="nome" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Sigla</label>
+                                <input type="text" name="sigla" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Tamanho</label>
+                                <input type="number" step="0.01" name="tamanho" class="form-control" min ="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Quantidade de Camas</label>
+                                <input type="number" name="qtdcama" class="form-control" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Quantidade de Banheiros</label>
+                                <input type="number" name="qtdbanheiro" class="form-control" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Nome da Colônia</label>
+                                <select name="nomecolonia" class="form-control" required>
+                                    <option value="" disabled selected>Selecione uma Colônia</option>
+                                    {% for colonia in colonias %}
+                                    <option value="{{ colonia[0] }}">{{ colonia[0] }}</option>
+                                    <!-- Ajuste os índices conforme sua estrutura -->
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-2">Adicionar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para Editar Residência -->
+        <div class="modal fade" id="editResidenciaModal" tabindex="-1" role="dialog"
+            aria-labelledby="editResidenciaModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editResidenciaModalLabel">Editar Residência</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editForm" method="POST" action="{{ url_for('update_residencia') }}">
+                            <input type="hidden" name="numeroserie" id="editNumeroSerie">
+                            <div class="form-group">
+                                <label>Nome</label>
+                                <input type="text" name="nome" id="editNome" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Sigla</label>
+                                <input type="text" name="sigla" id="editSigla" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Tamanho</label>
+                                <input type="number" step="0.01" name="tamanho" id="editTamanho" class="form-control" min="0"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label>Quantidade de Cama</label>
+                                <input type="number" name="qtdcama" id="editQtdCama" class="form-control" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Quantidade de Banheiro</label>
+                                <input type="number" name="qtdbanheiro" id="editQtdBanheiro" min="0" class="form-control"
+                                    required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Nome da Colônia</label>
+                                <select name="nomecolonia" class="form-control" required>
+                                    <option value="" disabled>Selecione uma Colônia</option>
+                                    {% for colonia in colonias %}
+                                    <option value="{{ colonia[0] }}" {% if colonia[0]==nomecolonia %} selected {% endif
+                                        %}>{{ colonia[0] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-2">Atualizar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Script para preencher os dados do modal de edição
+        $('#editResidenciaModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); // Botão que ativou o modal
+            var numeroserie = button.data('numeroserie'); // Extrai info dos atributos data-*
+            var nome = button.data('nome');
+            var sigla = button.data('sigla');
+            var tamanho = button.data('tamanho');
+            var qtdcama = button.data('qtdcama');
+            var qtdbanheiro = button.data('qtdbanheiro');
+            var nomecolonia = button.data('nomecolonia');
+
+            var modal = $(this);
+            modal.find('#editNumeroSerie').val(numeroserie);
+            modal.find('#editNome').val(nome);
+            modal.find('#editSigla').val(sigla);
+            modal.find('#editTamanho').val(tamanho);
+            modal.find('#editQtdCama').val(qtdcama);
+            modal.find('#editQtdBanheiro').val(qtdbanheiro);
+            modal.find('select[name="nomecolonia"]').val(nomecolonia);
+
+        });
+    </script>
+</body>
+
+</html>
